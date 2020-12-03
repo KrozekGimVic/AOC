@@ -35,6 +35,7 @@ fn sum_of_three(arr : &[i64], value: i64) -> Result<(usize, usize, usize), &str>
 fn main() {
     let mut nums: Vec<i64> = io::stdin().lock().lines().map(|l| l.unwrap().parse().unwrap()).collect();
     nums.sort();
+    let nums = nums;
 
     let args : Vec<String> = std::env::args().collect();
     let part = args[1].parse().unwrap();
