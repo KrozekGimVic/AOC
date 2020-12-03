@@ -1,5 +1,4 @@
-use std::io;
-use std::io::BufRead;
+use crate::common::Part;
 
 // Accepts a sorted list of ints and returns the first pair that sums to value.
 fn sum_of_two(arr : &[i64], value: i64) -> Result<(usize, usize), &str> {
@@ -32,24 +31,20 @@ fn sum_of_three(arr : &[i64], value: i64) -> Result<(usize, usize, usize), &str>
     Err("The list does not contain the desired value.")
 }
 
-fn main() {
-    let mut nums: Vec<i64> = io::stdin().lock().lines().map(|l| l.unwrap().parse().unwrap()).collect();
+pub fn solve(data : &Vec<String>, part : Part) {
+    let mut nums: Vec<i64> = data.iter()
+        .map(|l| l.parse().expect("Failed to parse an integer")).collect();
     nums.sort();
     let nums = nums;
 
-    let args : Vec<String> = std::env::args().collect();
-    let part = args[1].parse().unwrap();
     match part {
-        1 => {
+        Part::First => {
             let (i, j) = sum_of_two(&nums[..], 2020).unwrap();
             println!("{}", nums[i]*nums[j]);
         }
-        2 => {
+        Part::Second => {
             let (i, j, k) = sum_of_three(&nums[..], 2020).unwrap();
             println!("{}", nums[i]*nums[j]*nums[k]);
-        }
-        _ => {
-            panic!("Invalid part.")
         }
     }
 }

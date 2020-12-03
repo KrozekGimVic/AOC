@@ -1,4 +1,4 @@
-use std::io::BufRead;
+use crate::common::Part;
 
 struct PasswordData<'a> {
     password: &'a [u8],
@@ -44,19 +44,10 @@ fn num_valid_2(data : &Vec<PasswordData>) -> usize {
     data.iter().filter(|d| appears_only_once(d.password, d.ch, d.lo, d.hi)).count()
 }
 
-fn main() {
-    let args : Vec<String> = std::env::args().collect();
-    let part : i32 = args
-        .get(1).expect("Supply the part as the first argument.")
-        .parse().expect("Cannot parse as an integer.");
-
-    let data : Vec<String> = std::io::stdin().lock().lines()
-        .map(|l| l.expect("Could not parse input")).collect();
+pub fn solve(data : &Vec<String>, part : Part) {
     let parsed_data: Vec<PasswordData> = data.iter().map(parse_password_data).collect();
-
     match part {
-        1 => println!("{}", num_valid_1(&parsed_data)),
-        2 => println!("{}", num_valid_2(&parsed_data)),
-        _ => panic!("Invalid part."),
+        Part::First => println!("{}", num_valid_1(&parsed_data)),
+        Part::Second => println!("{}", num_valid_2(&parsed_data)),
     }
 }
