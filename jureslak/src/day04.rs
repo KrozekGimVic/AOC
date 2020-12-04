@@ -1,51 +1,112 @@
 use crate::common::Part;
 use std::collections::HashMap;
 use std::str::FromStr;
-use std::string::ParseError;
+use std::error;
+use std::fmt;
 
+type Result<T> = std::result::Result<T, Box<dyn error::Error>>;
 
-impl FromStr for ExpirationYear {
-    type Err = ParseError;
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let year : i32 = s.parse()?;
-        if 1920 <= year && year <= 2002 {
-            Err(ParseError::from("sss"))
-        } else {
-            Ok(ExpirationYear{ year })
-        }
+#[derive(Debug)]
+struct InvalidData;
+
+impl fmt::Display for InvalidData {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Number out of valid range or otherwise invalid data...")
     }
+}
+impl error::Error for InvalidData {}
+
+#[derive(Debug)]
+struct BirthYear { year: i32 }
+#[derive(Debug)]
+struct IssueYear { year: i32 }
+#[derive(Debug)]
+struct ExpirationYear { year: i32 }
+#[derive(Debug)]
+enum Unit { In, Cm }
+#[derive(Debug)]
+struct Height { value: i32, unit: Unit}
+#[derive(Debug)]
+struct Color { r: u8, g: u8, b: u8 }
+const VALID_EYE_COLORS : [&str; 7] = ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"];
+#[derive(Debug)]
+enum EyeColor { Whatever }
+#[derive(Debug)]
+struct PassportId { id: String }
+
+fn is_in_range(s: &str, from: i32, to: i32) -> Result<i32> {
+    let year : i32 = s.parse()?;
+    if from <= year && year <= to {
+        Ok(year)
+    } else {
+        Err(InvalidData)?
+    }
+}
+
+impl FromStr for BirthYear {
+    type Err = Box<dyn error::Error>;
+    fn from_str(s: &str) -> Result<Self> { Ok(BirthYear{ year: is_in_range(s, 1920, 2002)? }) }
+}
+impl FromStr for IssueYear {
+    type Err = Box<dyn error::Error>;
+    fn from_str(s: &str) -> Result<Self> { Ok(IssueYear{ year: is_in_range(s, 2010, 2020)? }) }
+}
+impl FromStr for ExpirationYear {
+    type Err = Box<dyn error::Error>;
+    fn from_str(s: &str) -> Result<Self> { Ok(ExpirationYear{ year: is_in_range(s, 2020, 2030)? }) }
 }
 
 impl FromStr for Height {
-    type Err = ParseError;
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if s.ends_with("in") {
-            Ok(Height{value: s[..s.len()-2].parse()?, unit: Unit::In})
-        } else if s.ends_with("cm") {
-            Ok(Height{value: s[..s.len()-2].parse()?, unit: Unit::Cm})
+    type Err = Box<dyn error::Error>;
+    fn from_str(s: &str) -> Result<Self> {
+        if s.ends_with("cm") {
+            Ok(Height{value: is_in_range(&s[..s.len() - 2], 150, 193)?, unit: Unit::Cm})
+        } else if s.ends_with("in") {
+            Ok(Height{value: is_in_range(&s[..s.len() - 2], 59, 76)?, unit: Unit::In})
         } else {
-            Err(ParseError::from("asdf"))
+            Err(InvalidData)?
         }
     }
 }
 
-impl FromStr for HairColor {
-    type Err = ParseError;
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if s.len() != 7 {}
-            // && s.as_bytes()[0] == b'#' &&
-            //     s.as_bytes()[1..].iter()
-            //         .all(|&c| b'0' <= c && c <= b'9' || b'a' <= c && c <= b'f')
-        // }
+impl FromStr for Color {
+    type Err = Box<dyn error::Error>;
+    fn from_str(s: &str) -> Result<Self> {
+        let s = s.as_bytes();
+        if s.len() != 7 || s[0] != b'#' { return Err(InvalidData)? }
+        if !s[1..].iter().all(|&c| b'0' <= c && c <= b'9' || b'a' <= c && c <= b'f') {
+            return Err(InvalidData)?
+        }
+        Ok(Color{r: 0, g: 0, b: 0})  // doesn't matter
     }
 }
 
+impl FromStr for EyeColor {
+    type Err = Box<dyn error::Error>;
+    fn from_str(s: &str) -> Result<Self> {
+        if !VALID_EYE_COLORS.contains(&s) { return Err(InvalidData)?; }
+        Ok(EyeColor::Whatever)  // doesn't matter
+    }
+}
+
+impl FromStr for PassportId {
+    type Err = Box<dyn error::Error>;
+    fn from_str(s: &str) -> Result<Self> {
+        let b = s.as_bytes();
+        if !(b.len() == 9 && b.iter().all(|&c| b'0' <= c && c <= b'9')) {
+            return Err(InvalidData)?
+        }
+        Ok(PassportId { id: s.to_owned()})
+    }
+}
+
+#[derive(Debug)]
 struct Passport {
     birth_year: BirthYear,
     issue_year: IssueYear,
     expiration_year: ExpirationYear,
     height: Height,
-    hair_color: HairColor,
+    hair_color: Color,
     eye_color: EyeColor,
     passport_id: PassportId,
 }
@@ -57,53 +118,25 @@ const HGT: &'static str = "hgt";
 const HCL: &'static str = "hcl";
 const ECL: &'static str = "ecl";
 const PID: &'static str = "pid";
-
-const VALID_EYE_COLORS : [&str; 7] = ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"];
-type Validator = fn(&str) -> bool;
-const VALIDATORS: HashMap<&'static str, Validator> = [
-    (BYR, int_range_validator(1920, 2002)),
-    (IYR, int_range_validator(2010, 2020)),
-    (EYR, int_range_validator(2020, 2030)),
-    // (HGT, length_validator([("cm", (150, 193)), ("in", (59, 76))])),
-    // (HCL, rbg_validator),
-    // (ECL, one_of_validator(VALID_EYE_COLORS)),
-    // (PID, int_seq_validator(9)),
-].iter().cloned().collect();
+const VALID_KEYS : [&str; 7] = [BYR, IYR, EYR, HGT, HCL, ECL, PID];
 
 impl Passport {
     fn valid_keys(data: &HashMap<String, String>) -> bool {
-        VALIDATORS.keys().all(|&k| data.contains_key(&String::from(k)))
+        VALID_KEYS.iter().all(|&k| data.contains_key(&String::from(k)))
     }
 
-    fn valid_values(data: &HashMap<String, String>) -> bool {
-        VALIDATORS.keys().all(|&k| VALIDATORS[k](data[k]))
+    fn from(data: &HashMap<String, String>) -> Result<Passport> {
+        Ok(Passport {
+            birth_year: data[BYR].parse()?,
+            issue_year: data[IYR].parse()?,
+            expiration_year: data[EYR].parse()?,
+            height: data[HGT].parse()?,
+            hair_color: data[HCL].parse()?,
+            eye_color: data[ECL].parse()?,
+            passport_id: data[PID].parse()?,
+        })
     }
 }
-
-fn int_range_validator(from: i32, to: i32) -> Validator {
-    |s| {
-        let x = s.parse();
-        if x.is_err() { return false; }
-        let x = x.unwrap();
-        return 
-    }
-}
-
-// impl Validatable for EyeColor {
-//     fn valid(&self) -> bool {
-//         VALID_EYE_COLORS.any(|c| self.value.as_bytes() == c)
-//     }
-// }
-// impl Validatable for PassportId {
-//     fn valid(&self) -> bool {
-//         self.id.len() == 9 &&
-//             self.id.as_bytes().iter().all(|&c| b'0' <= c && c <= b'9')
-//     }
-// }
-// impl Validatable for Passport {
-//     fn valid(&self) -> bool {
-//     }
-// }
 
 pub fn solve(data : &Vec<String>, part : Part) {
     let mut passports = Vec::new();
@@ -128,6 +161,10 @@ pub fn solve(data : &Vec<String>, part : Part) {
 
     match part {
         Part::First => println!("{}", passports.len()),
-        Part::Second => println!("{}", passports.iter().filter_map(|s| Passport::from(s).ok())),
+        Part::Second => {
+            let passports : Vec<Passport> = passports.iter().filter_map(|h| Passport::from(h).ok()).collect();
+            eprintln!("{:?}", passports);
+            println!("{}", passports.len())
+        }
     }
 }
