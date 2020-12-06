@@ -6,6 +6,7 @@ mod day02;
 mod day03;
 mod day04;
 mod day05;
+mod day06;
 mod common;
 use common::Part;
 
@@ -29,6 +30,7 @@ fn main() {
         day03::solve,
         day04::solve,
         day05::solve,
+        day06::solve,
     ];
 
     if !(part == 1 || part == 2) { panic!("Invalid part!"); }
