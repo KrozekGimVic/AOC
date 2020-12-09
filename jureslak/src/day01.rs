@@ -1,16 +1,13 @@
 use crate::common::Part;
 
 // Accepts a sorted list of ints and returns the first pair that sums to value.
-fn sum_of_two(arr : &[i64], value: i64) -> Result<(usize, usize), &str> {
+pub fn sum_of_two(arr : &[i64], value: i64) -> Result<(usize, usize), &str> {
     let mut j = arr.len() - 1;
     for i in 0..arr.len() {
         if i >= j { break }
-        while j > i {
+        while j > i && arr[i] + arr[j] >= value {
             if  arr[i] + arr[j] == value {
                 return Ok((i, j));
-            } else if arr[i] + arr[j] < value {
-                j += 1;
-                break;
             }
             j -= 1;
         }
