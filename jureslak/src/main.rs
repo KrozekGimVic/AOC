@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::{BufReader, BufRead};
 
+mod common;
 mod day01;
 mod day02;
 mod day03;
@@ -15,7 +16,7 @@ mod day11;
 mod day12;
 mod day13;
 mod day14;
-mod common;
+mod day15;
 
 use common::Part;
 
@@ -48,6 +49,7 @@ fn main() {
         day12::solve,
         day13::solve,
         day14::solve,
+        day15::solve,
     ];
 
     if !(part == 1 || part == 2) { panic!("Invalid part!"); }
