@@ -82,14 +82,14 @@ fn precedence2(op: &Token) -> i32 {
 }
 
 pub fn solve(data : &Vec<String>, part : Part) {
-    let iter : Vec<Vec<Token>> = data.iter().map(tokenize).collect();
+    let expressions: Vec<Vec<Token>> = data.iter().map(tokenize).collect();
     match part {
         Part::First => {
-            println!("{}", iter.iter().map(|e| evaluate(e, precedence1)).sum::<i64>());
+            println!("{}", expressions.iter().map(|e| evaluate(e, precedence1)).sum::<i64>());
         },
 
         Part::Second => {
-            println!("{}", iter.iter().map(|e| evaluate(e, precedence2)).sum::<i64>());
+            println!("{}", expressions.iter().map(|e| evaluate(e, precedence2)).sum::<i64>());
         },
     }
 }
