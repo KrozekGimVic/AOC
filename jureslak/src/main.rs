@@ -31,17 +31,17 @@ mod day01;
 use common::Part;
 
 fn main() {
-    let args: Vec<String> = std::env::args().collect();
+    let args : Vec<String> = std::env::args().collect();
     let day : usize = args.get(1).expect("Supply the day as the first argument.")
         .parse().expect("Cannot parse as an integer.");
-    let part : i32 = args.get(2).expect("Supply the part as the second argument.")
-        .parse().expect("Cannot parse as an integer.");
+
+    let part : i32 = args.get(2).map(|s| s.parse().expect("Cannot parse as an integer.")).unwrap_or(-1);
 
     let default = format!("input/day{:02}.in", day);
-    let file= args.get(3).unwrap_or(&default);
-
+    let file = args.get(3).unwrap_or(&default);
     let data : Vec<String> = BufReader::new(
-        File::open(file).expect("Failed opening file.")
+        File::open(file).or(File::open(format!("../{}", file)))
+            .expect("Failed opening file.")
     ).lines().map(|l| l.expect("Failed reading line.")).collect();
 
     let solutions = [
@@ -72,9 +72,15 @@ fn main() {
         // day25::solve,
     ];
 
-    if !(part == 1 || part == 2) { panic!("Invalid part!"); }
-    solutions.get(day-1).expect("Invalid day.")(
-        &data,
-        if part == 1 { Part::First } else { Part::Second }
-    );
+    let solution = solutions.get(day-1).expect("Invalid day.");
+
+    if !vec![-1, 1, 2].contains(&part) { panic!("Invalid part {}!", part); }
+    if part == 1 || part == -1 {
+        println!("------ part 1 -------");
+        solution(&data, Part::First);
+    }
+    if part == 2 || part == -1 {
+        println!("------ part 2 -------");
+        solution(&data, Part::Second);
+    }
 }
