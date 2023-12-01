@@ -49,11 +49,11 @@ impl Tree {
         &mut self.node_arena[id]
     }
 
-    fn print_nodes(&self) {
-        for i in 0..self.node_arena.len() {
-            println!("{}: {:?}", i, self.node_arena[i]);
-        }
-    }
+    // fn print_nodes(&self) {
+    //     for i in 0..self.node_arena.len() {
+    //         println!("{}: {:?}", i, self.node_arena[i]);
+    //     }
+    // }
 
     fn next(&mut self, id: usize) -> Option<usize> {
         if let Child::Pair(p) = self.node(id) {
