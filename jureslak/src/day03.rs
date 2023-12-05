@@ -41,7 +41,6 @@ fn find_part_numbers(data: &mut Vec<Vec<u8>>, i: i32, j: i32, h: i32, w: i32) ->
             let ni = i + di;
             let nj = j + dj;
             if 0 <= ni && ni < h && 0 <= nj && nj < w && is_digit(data[ni as usize][nj as usize]) {
-                let symb = data[i as usize][j as usize];
                 parts.push(find_part_number(&mut data[ni as usize], nj, w));
             }
         }
@@ -71,7 +70,6 @@ fn find_gear_ratio(data: &mut Vec<Vec<u8>>, i: i32, j: i32, h: i32, w: i32) -> O
             let ni = i + di;
             let nj = j + dj;
             if 0 <= ni && ni < h && 0 <= nj && nj < w && is_digit(data[ni as usize][nj as usize]) {
-                let symb = data[i as usize][j as usize];
                 parts.push(find_part_number(&mut data[ni as usize], nj, w));
             }
         }
