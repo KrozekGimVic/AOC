@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use crate::common::Part;
 
 struct Dest<'a> {
@@ -6,7 +6,7 @@ struct Dest<'a> {
     right: &'a str,
 }
 
-fn follow<'a>(mut start: &'a str, map: &'a HashMap<&'a str, Dest>, instructions: &[u8], is_end: fn(&str) -> bool) -> usize {
+fn follow<'a>(mut start: &'a str, map: &'a HashMap<&'a str, Dest>, instructions: &[u8], is_end: fn(&str) -> bool) -> (usize, &'a str) {
     let mut i = 0;
     while !is_end(start) {
         start = match instructions[i % instructions.len()] {
@@ -16,7 +16,7 @@ fn follow<'a>(mut start: &'a str, map: &'a HashMap<&'a str, Dest>, instructions:
         };
         i += 1;
     }
-    i
+    (i, start)
 }
 
 fn gcd(mut a: usize, mut b: usize) -> usize {
@@ -30,11 +30,29 @@ fn gcd(mut a: usize, mut b: usize) -> usize {
 
 fn follow2(map: &HashMap<&str, Dest>, instructions: &[u8]) -> usize {
     let starts : Vec<&str> = map.keys().filter(|&s| s.ends_with('A')).map(|&s| s).collect();
-    let cyc : Vec<usize> = starts.iter().map(|&s| follow(s, map, instructions, |s| s.ends_with('Z'))).collect();
+    let cyc : Vec<usize> = starts.iter().map(|&s| {
+        let mut step_counts = vec![];
+        let mut seen = HashSet::new();
+        seen.insert(s);
+        let mut start = s;
+        loop {
+            let (steps, end) = follow(start, map, instructions, |s| s.ends_with('Z'));
+            if seen.contains(end) {
+                break;
+            } else {
+                seen.insert(end);
+            }
+            step_counts.push(steps);
+            start = end;
+        }
+        assert_eq!(step_counts.len(), 1);
+        step_counts[0]
+    }).collect();
+
     let g = cyc.clone().into_iter().reduce(gcd).unwrap();
-    println!("{:?}", cyc);
     println!("{}", g);
-    cyc.iter().product::<usize>() / g
+    println!("{:?}", cyc);
+        cyc.into_iter().reduce(|a, b| a*b/g).unwrap()
 }
 
 
@@ -54,7 +72,7 @@ pub fn solve(data : &Vec<String>, part : Part) {
     match part {
         Part::First => {
 
-            println!("{}", follow("AAA", &nodes, dir, |s| s == "ZZZ"));
+            println!("{}", follow("AAA", &nodes, dir, |s| s == "ZZZ").0);
         }
         Part::Second => {
             println!("{}", follow2(&nodes, dir));
