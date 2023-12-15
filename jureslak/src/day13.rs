@@ -39,9 +39,9 @@ fn compute_reflection(case: &Case) -> Reflection {
     let h = case.data.len();
     let w = case.data[0].len();
 
-    for l in &case.data {
-        println!("{}", String::from_utf8(l.to_vec()).unwrap());
-    }
+    // for l in &case.data {
+    //     println!("{}", String::from_utf8(l.to_vec()).unwrap());
+    // }
 
     for i in 1..h {
         if check_ud(i, &case.data, w, h) == 0 {
@@ -62,9 +62,9 @@ fn compute_reflection2(case: &Case) -> Reflection {
     let h = case.data.len();
     let w = case.data[0].len();
 
-    for l in &case.data {
-        println!("{}", String::from_utf8(l.to_vec()).unwrap());
-    }
+    // for l in &case.data {
+    //     println!("{}", String::from_utf8(l.to_vec()).unwrap());
+    // }
 
     for i in 1..h {
         if check_ud(i, &case.data, w, h) == 1 {
@@ -98,7 +98,7 @@ pub fn solve(data : &Vec<String>, part : Part) {
     match part {
         Part::First => {
             let r : usize = cases.iter().map(|c| compute_reflection(c)).map(|r| {
-                println!("{:?}", r);
+                // println!("{:?}", r);
                 match r {
                     Reflection::LR(i) => i,
                     Reflection::UD(i) => 100*i,
@@ -108,7 +108,7 @@ pub fn solve(data : &Vec<String>, part : Part) {
         }
         Part::Second => {
             let r : usize = cases.iter().map(|c| compute_reflection2(c)).map(|r| {
-                println!("{:?}", r);
+                // println!("{:?}", r);
                 match r {
                     Reflection::LR(i) => i,
                     Reflection::UD(i) => 100*i,
