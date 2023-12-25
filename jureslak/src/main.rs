@@ -22,11 +22,7 @@ mod day17;
 mod day18;
 mod day19;
 mod day20;
-// mod day21;
-// mod day22;
-// mod day23;
-// mod day24;
-// mod day25;
+mod day21;
 
 use common::Part;
 
@@ -65,11 +61,7 @@ fn main() {
         day18::solve,
         day19::solve,
         day20::solve,
-        // day21::solve,
-        // day22::solve,
-        // day23::solve,
-        // day24::solve,
-        // day25::solve,
+        day21::solve,
     ];
 
     let solution = solutions.get(day-1).expect("Invalid day.");
